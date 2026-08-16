@@ -35,6 +35,12 @@
     "ocr"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huangzhixin0420/agent-eyes-mcp.git"
+  },
+  "bugs": "https://github.com/huangzhixin0420/agent-eyes-mcp/issues",
+  "homepage": "https://github.com/huangzhixin0420/agent-eyes-mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "ipaddr.js": "^2.5.0",

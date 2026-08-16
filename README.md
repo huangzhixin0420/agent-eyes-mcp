@@ -1,5 +1,8 @@
 # agent-eyes-mcp
 
+[![npm version](https://img.shields.io/npm/v/agent-eyes-mcp)](https://www.npmjs.com/package/agent-eyes-mcp)
+[![license](https://img.shields.io/npm/l/agent-eyes-mcp)](https://github.com/huangzhixin0420/agent-eyes-mcp/blob/main/LICENSE)
+
 > Give text-only LLM agents eyes: describe images through a vision-language model (VLM) via MCP or CLI.
 
 Text models cannot see screenshots, error dialogs, or charts. `agent-eyes-mcp` is a single npm package that runs as an **MCP server** (stdio) exposing one tool, `describe_image`, which sends one or more images to a VLM API and returns a text description. The image is never attached to the model's context — the VLM does the seeing, the text model reads the answer.
