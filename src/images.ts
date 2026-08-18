@@ -5,6 +5,7 @@ import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch } from "undici";
 import ipaddr from "ipaddr.js"; // CJS module (`module.exports = ...`); default import is required under ESM interop
 import { AgentEyesError } from "./errors.js";
+import { envTimeoutMs } from "./env.js";
 
 /** Total input budget across all images in one request (checked before preprocessing). */
 export const MAX_TOTAL_INPUT_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -16,8 +17,10 @@ export const MAX_FETCH_BYTES = MAX_TOTAL_INPUT_BYTES;
  * Anything longer is rejected before a giant Buffer is allocated.
  */
 export const MAX_BASE64_TEXT = Math.ceil((MAX_TOTAL_INPUT_BYTES * 4) / 3) + 1024;
-const FETCH_TIMEOUT_MS = 30_000;
-const DNS_TIMEOUT_MS = 2_000;
+/** Default URL image-fetch timeout; override with AGENT_EYES_FETCH_TIMEOUT_MS. */
+const DEFAULT_FETCH_TIMEOUT_MS = 30_000;
+/** Default DNS lookup timeout; override with AGENT_EYES_DNS_TIMEOUT_MS. */
+const DEFAULT_DNS_TIMEOUT_MS = 2_000;
 
 export interface ResolvedImage {
   bytes: Buffer;
@@ -168,7 +171,7 @@ async function fetchImage(urlStr: string, fetchImpl: typeof fetch): Promise<Reso
       try {
         // Double assertion: the `dispatcher` extension is undici's, and the
         // undici package types differ from the undici-types bundled in @types/node.
-        const init = { redirect: "manual", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), dispatcher } as unknown as RequestInit;
+        const init = { redirect: "manual", signal: AbortSignal.timeout(envTimeoutMs("AGENT_EYES_FETCH_TIMEOUT_MS", DEFAULT_FETCH_TIMEOUT_MS)), dispatcher } as unknown as RequestInit;
         res = await fetchImpl(url.toString(), init);
       } catch (err) {
         const reason = errorMessage(err);
@@ -364,7 +367,7 @@ async function resolveHost(hostname: string): Promise<string[]> {
     const result = await Promise.race([
       lookup(hostname, { all: true }),
       new Promise<never>((_, reject) => {
-        const t = setTimeout(() => reject(new Error("DNS lookup timed out")), DNS_TIMEOUT_MS);
+        const t = setTimeout(() => reject(new Error("DNS lookup timed out")), envTimeoutMs("AGENT_EYES_DNS_TIMEOUT_MS", DEFAULT_DNS_TIMEOUT_MS));
         t.unref();
       }),
     ]);

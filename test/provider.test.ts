@@ -80,6 +80,29 @@ describe("OpenAICompatProvider", () => {
     await expect(provider.describe(ONE_IMAGE, "p", "high")).rejects.toMatchObject({ code: "provider_error" });
   });
 
+  it("aborts the request after AGENT_EYES_API_TIMEOUT_MS", async () => {
+    process.env.AGENT_EYES_API_TIMEOUT_MS = "50";
+    try {
+      const fetchImpl = mockFetch(
+        (_url, init) =>
+          new Promise<Response>((_, reject) => {
+            init?.signal?.addEventListener("abort", () => {
+              const err = new Error("The operation timed out.");
+              err.name = "TimeoutError";
+              reject(err);
+            });
+          }),
+      );
+      const provider = new OpenAICompatProvider({ apiKey: "k", baseUrl: "https://api.test/v1", fetchImpl });
+      await expect(provider.describe(ONE_IMAGE, "p", "high")).rejects.toMatchObject({
+        code: "provider_error",
+        hint: expect.stringContaining("timed out"),
+      });
+    } finally {
+      delete process.env.AGENT_EYES_API_TIMEOUT_MS;
+    }
+  });
+
   it("reads defaults from the environment", async () => {
     const prevKey = process.env.VISION_API_KEY;
     const prevUrl = process.env.VISION_BASE_URL;

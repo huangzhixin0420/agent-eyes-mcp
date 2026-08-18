@@ -1,4 +1,5 @@
 import { AgentEyesError } from "./errors.js";
+import { envTimeoutMs } from "./env.js";
 import { SYSTEM_PROMPT } from "./prompts.js";
 
 /**
@@ -23,7 +24,8 @@ export interface VisionProvider {
   describe(images: VisionImage[], prompt: string, detail: Detail): Promise<string>;
 }
 
-const REQUEST_TIMEOUT_MS = 120_000;
+/** Default VLM API request timeout; override with AGENT_EYES_API_TIMEOUT_MS. */
+const DEFAULT_REQUEST_TIMEOUT_MS = 120_000;
 
 /**
  * Reasoning models (MiniMax-M3, Qwen3, ...) inline their chain-of-thought in
@@ -48,9 +50,10 @@ export function cleanResponseText(raw: string): string {
  * bodies are all converted into structured provider errors.
  */
 export async function requestJson(fetchImpl: typeof fetch, url: string, init: RequestInit, description: string): Promise<unknown> {
+  const timeoutMs = envTimeoutMs("AGENT_EYES_API_TIMEOUT_MS", DEFAULT_REQUEST_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetchImpl(url, { ...init, signal: init.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    res = await fetchImpl(url, { ...init, signal: init.signal ?? AbortSignal.timeout(timeoutMs) });
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     const timedOut = err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError");
@@ -58,7 +61,7 @@ export async function requestJson(fetchImpl: typeof fetch, url: string, init: Re
       "provider_error",
       `Failed to reach the vision API (${description}): ${reason}`,
       timedOut
-        ? `The request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)}s; try again or use smaller images.`
+        ? `The request timed out after ${Math.round(timeoutMs / 1000)}s; try again or use smaller images.`
         : "Check the base URL and your network connection.",
     );
   }

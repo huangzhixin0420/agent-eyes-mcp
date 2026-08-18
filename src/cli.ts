@@ -121,6 +121,9 @@ Environment:
                            (default: the working directory).
   AGENT_EYES_DISK_CACHE    Set to 1 to persist the description cache to disk.
   AGENT_EYES_DISK_CACHE_DIR  Cache directory (default: os.tmpdir()/agent-eyes-mcp/cache).
+  AGENT_EYES_API_TIMEOUT_MS  Vision API request timeout (default: 120000).
+  AGENT_EYES_FETCH_TIMEOUT_MS  URL image fetch timeout (default: 30000).
+  AGENT_EYES_DNS_TIMEOUT_MS  DNS lookup timeout for URL fetches (default: 2000).
 
 Examples:
   agent-eyes-mcp describe ./screenshot.png

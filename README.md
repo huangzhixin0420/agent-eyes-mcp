@@ -177,6 +177,9 @@ export VISION_API_KEY=sk-...    # MiniMax API key
 | `AGENT_EYES_ALLOWED_DIR`  | no       | working directory                                              | Root directory the file sandbox permits (relative paths still resolve against `process.cwd()`). |
 | `AGENT_EYES_DISK_CACHE`   | no       | (off)                                                          | Set to `1` to persist the description cache to disk.                         |
 | `AGENT_EYES_DISK_CACHE_DIR`| no      | `os.tmpdir()/agent-eyes-mcp/cache`                             | Disk cache directory (created lazily).                                       |
+| `AGENT_EYES_API_TIMEOUT_MS`| no      | `120000`                                                       | Vision API request timeout in milliseconds.                                  |
+| `AGENT_EYES_FETCH_TIMEOUT_MS`| no    | `30000`                                                        | URL image fetch timeout in milliseconds.                                     |
+| `AGENT_EYES_DNS_TIMEOUT_MS`| no      | `2000`                                                         | DNS lookup timeout (for URL fetches) in milliseconds.                        |
 
 `*` required for that provider only.
 
