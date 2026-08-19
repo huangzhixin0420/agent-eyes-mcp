@@ -1,6 +1,6 @@
 {
   "name": "agent-eyes-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Give text-only LLM agents eyes: an MCP server + CLI that describes images through a vision-language model (VLM) API.",
   "type": "module",
   "bin": {
